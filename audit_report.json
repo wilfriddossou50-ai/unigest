@@ -1,0 +1,29 @@
+{
+    "missing_views": [
+        {
+            "controller": "DetteController.php",
+            "view": "admin.dettes.etudiant"
+        },
+        {
+            "controller": "ProfesseurMatiereController.php",
+            "view": "admin.professeur_matiere.index"
+        },
+        {
+            "controller": "ProfesseurMatiereController.php",
+            "view": "admin.professeur_matiere.create"
+        },
+        {
+            "controller": "UserController.php",
+            "view": "admin.users.index"
+        },
+        {
+            "controller": "UserController.php",
+            "view": "admin.users.create"
+        },
+        {
+            "controller": "UserController.php",
+            "view": "admin.users.edit"
+        }
+    ],
+    "models_issues": []
+}

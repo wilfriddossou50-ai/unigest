@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  :root {
+    color-scheme: light;
+    --brand-500: #0ea5e9;
+    --brand-600: #0284c7;
+    --brand-700: #0369a1;
+    --surface: #ffffff;
+    --surface-muted: #f8fafc;
+    --border: #e2e8f0;
+  }
+
+  body {
+    min-height: 100vh;
+    line-height: 1.5;
+    text-rendering: optimizeLegibility;
+  }
+
+  img,
+  svg,
+  video,
+  canvas,
+  iframe {
+    max-width: 100%;
+    height: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  [x-cloak] {
+    display: none !important;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .bg-brand {
+    background-color: var(--brand-500);
+  }
+
+  .bg-brand-dark {
+    background-color: var(--brand-600);
+  }
+
+  .bg-brand-darker {
+    background-color: var(--brand-700);
+  }
+
+  .text-brand {
+    color: var(--brand-500);
+  }
+
+  .text-brand-dark {
+    color: var(--brand-600);
+  }
+
+  .border-brand {
+    border-color: var(--brand-500);
+  }
+
+  .hover\:bg-brand-dark:hover {
+    background-color: var(--brand-600);
+  }
+}
+
