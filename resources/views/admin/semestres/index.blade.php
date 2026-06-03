@@ -33,7 +33,7 @@
                 <tr class="hover:bg-slate-50 transition">
                     <td class="px-6 py-4 text-sm font-medium text-slate-900">{{ $semestre->code ?? 'N/A' }}</td>
                     <td class="px-6 py-4 text-sm text-slate-600">{{ $semestre->libelle ?? 'N/A' }}</td>
-                    <td class="px-6 py-4 text-sm text-slate-600">{{ $semestre->niveau->libelle ?? 'N/A' }}</td>
+                    <td class="px-6 py-4 text-sm text-slate-600">{{ $semestre->niveau?->libelle ?? 'N/A' }}</td>
                     <td class="px-6 py-4 text-sm text-slate-900 font-medium">{{ $semestre->modules->count() ?? 0 }}</td>
                     <td class="px-6 py-4 text-sm text-right">
                         <div class="flex items-center justify-end gap-2">

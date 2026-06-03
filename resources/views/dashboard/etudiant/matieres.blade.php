@@ -27,27 +27,65 @@
             class="w-full rounded-lg border border-slate-300 pl-10 pr-4 py-2 text-sm placeholder-slate-500 focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
     </div>
 
-    <!-- MATIERES GRID -->
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        @foreach($matieres as $matiere)
-        <div x-show="!searchQuery || '{{ strtolower($matiere->libelle) }}'.includes(searchQuery.toLowerCase())"
-            class="rounded-xl border border-slate-200 bg-white p-5 shadow-md hover:shadow-lg hover:border-sky-300 transition-all">
-            <div class="flex items-start justify-between gap-3 mb-3">
-                <div class="flex-1">
-                    <h3 class="font-semibold text-slate-900">{{ $matiere->libelle }}</h3>
-                    <p class="mt-1 text-xs text-slate-600">{{ $matiere->module?->libelle ?? $matiere->module?->nom ?? '—' }}</p>
+    @php
+    $matieresParSemestre = $matieres->groupBy(fn($matiere) => $matiere->module?->semestre?->libelle ?? 'Semestre inconnu');
+    @endphp
+
+    <div class="space-y-6">
+        @foreach($matieresParSemestre as $semestreLibelle => $matieresSemestre)
+        @php
+        $modulesGroupes = $matieresSemestre->groupBy(fn($matiere) => $matiere->module?->id ?? 0);
+        $moduleCount = $modulesGroupes->count();
+        $matiereCount = $matieresSemestre->count();
+        @endphp
+        <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.25em] text-slate-400">Semestre</p>
+                    <h2 class="text-xl font-semibold text-slate-900">{{ $semestreLibelle }}</h2>
+                    <p class="mt-1 text-sm text-slate-600">{{ $matiereCount }} matière(s) répartie(s) sur {{ $moduleCount }} module(s).</p>
                 </div>
-                <span class="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-sky-100 text-sky-600 text-xs font-bold">
-                    {{ $matiere->code }}
-                </span>
+                <div class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-700">
+                    <span class="font-semibold">Filtrer :</span>
+                    <span>{{ $matiereCount }} matières</span>
+                </div>
             </div>
-            @if($matiere->module?->semestre)
-            <div class="flex items-center gap-2 text-xs text-slate-600 bg-slate-50 rounded-lg px-3 py-2">
-                <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-                {{ $matiere->module->semestre->libelle }}
+
+            <div class="space-y-4">
+                @foreach($modulesGroupes as $moduleId => $moduleMatieres)
+                @php $module = $moduleMatieres->first()->module; @endphp
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                        <div>
+                            <p class="text-sm uppercase tracking-[0.2em] text-slate-400">Module</p>
+                            <h3 class="text-lg font-semibold text-slate-900">{{ $module->libelle ?? $module->nom ?? 'Module inconnu' }}</h3>
+                            <p class="mt-1 text-sm text-slate-600">{{ $module->code ?? 'Code indisponible' }}</p>
+                        </div>
+                        <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 border border-slate-200">
+                            {{ $moduleMatieres->count() }} matière(s)
+                        </span>
+                    </div>
+
+                    <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                        @foreach($moduleMatieres as $matiere)
+                        <div x-show="!searchQuery || '{{ strtolower($matiere->libelle) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower($module->libelle ?? $module->nom) }}'.includes(searchQuery.toLowerCase()) || '{{ strtolower($semestreLibelle) }}'.includes(searchQuery.toLowerCase())"
+                            class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <h4 class="font-semibold text-slate-900 truncate">{{ $matiere->libelle }}</h4>
+                                    <p class="mt-1 text-xs text-slate-500">{{ $matiere->code ?? '—' }}</p>
+                                </div>
+                                <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-sky-100 text-sky-600 text-xs font-bold">
+                                    {{ strtoupper(substr($matiere->code ?? 'M', 0, 2)) }}
+                                </span>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endforeach
             </div>
-            @endif
-        </div>
+        </section>
         @endforeach
     </div>
     @else

@@ -3,11 +3,12 @@
 @section('title', 'Gestion des Dettes')
 
 @section('content')
-<div class="p-8">
-    <div class="flex items-center justify-between mb-8">
+<div class="admin-page">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-slate-900">Dettes académiques</h1>
-            <p class="text-slate-600 mt-1">Suivi et levée manuelle des matières non encore validées</p>
+            <p class="text-xs uppercase tracking-[0.25em] text-slate-400">Suivi</p>
+            <h1 class="text-2xl font-bold text-slate-900">Dettes acadmiques</h1>
+            <p class="mt-1 text-sm text-slate-500">Suivi et leve manuelle des matires non encore valides.</p>
         </div>
     </div>
 
@@ -18,99 +19,78 @@
     </div>
     @endif
 
-    {{-- CARTE STATISTIQUE DYNAMIQUE --}}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-slate-600 font-medium">Dettes en cours</p>
-                    <p class="text-2xl font-bold text-slate-900 mt-2">{{ $stats['en_cours'] }}</p>
-                </div>
-                <i data-lucide="alert-circle" class="w-10 h-10 text-red-600 opacity-20"></i>
-            </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-sm text-slate-600 font-medium">Dettes en cours</p>
+            <p class="mt-2 text-2xl font-bold text-slate-900">{{ $stats['en_cours'] }}</p>
         </div>
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-slate-600 font-medium">Étudiants concernés</p>
-                    <p class="text-2xl font-bold text-slate-900 mt-2">{{ $stats['etudiants'] }}</p>
-                </div>
-                <i data-lucide="users" class="w-10 h-10 text-orange-600 opacity-20"></i>
-            </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-sm text-slate-600 font-medium">Étudiants concerns</p>
+            <p class="mt-2 text-2xl font-bold text-slate-900">{{ $stats['etudiants'] }}</p>
         </div>
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-slate-600 font-medium">Dettes levées</p>
-                    <p class="text-2xl font-bold text-slate-900 mt-2">{{ $stats['levees'] }}</p>
-                </div>
-                <i data-lucide="check-circle" class="w-10 h-10 text-green-600 opacity-20"></i>
-            </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-sm text-slate-600 font-medium">Dettes leves</p>
+            <p class="mt-2 text-2xl font-bold text-slate-900">{{ $stats['levees'] }}</p>
         </div>
     </div>
 
-    {{-- FILTRES & TABLE --}}
-    <div class="bg-white rounded-xl shadow-sm p-6 mb-6 border border-slate-100">
-        <form method="GET" action="{{ route('admin.dettes.index') }}" class="flex flex-col gap-4 md:flex-row md:items-center">
-            <select name="statut" class="px-4 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-blue-500">
+    <div class="admin-toolbar mb-6">
+        <form method="GET" action="{{ route('admin.dettes.index') }}" class="admin-toolbar-grid">
+            <select name="statut" class="admin-filter-select">
                 <option value="">Tous les statuts</option>
                 <option value="en_cours" {{ request('statut') === 'en_cours' ? 'selected' : '' }}>En cours</option>
-                <option value="levee" {{ request('statut') === 'levee' ? 'selected' : '' }}>Levée</option>
+                <option value="levee" {{ request('statut') === 'levee' ? 'selected' : '' }}>Leve</option>
             </select>
-            <button type="submit" class="bg-blue-600 text-white font-medium px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition">Filtrer</button>
+            <button type="submit" class="admin-filter-button">Filtrer</button>
         </form>
     </div>
 
-    {{-- TABLE DES DETTES --}}
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="overflow-x-auto max-h-96 overflow-y-auto">
-            <table class="w-full text-left text-sm">
-                <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
+    <div class="admin-shell">
+        <div class="admin-table-wrap max-h-96 overflow-y-auto">
+            <table class="admin-table min-w-[760px] text-sm">
+                <thead class="sticky top-0 z-20">
                     <tr>
-                        <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Étudiant</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Matière</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Module</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Statut</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500 text-center">Actions</th>
+                        <th>Étudiant</th>
+                        <th>Matire</th>
+                        <th class="hidden md:table-cell">Module</th>
+                        <th>Statut</th>
+                        <th class="text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($dettes as $dette)
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-4 font-medium text-slate-900">
+                    <tr class="admin-row">
+                        <td class="font-medium text-slate-900">
                             {{ $dette->etudiant?->user?->nom }} {{ $dette->etudiant?->user?->prenom }}
                         </td>
-                        <td class="px-6 py-4 text-slate-700">{{ $dette->matiere?->libelle ?? '—' }}</td>
-                        <td class="px-6 py-4 text-slate-700">{{ $dette->module?->libelle ?? '—' }}</td>
-                        <td class="px-6 py-4">
+                        <td class="text-slate-700">{{ $dette->matiere?->libelle ?? '—' }}</td>
+                        <td class="hidden md:table-cell text-slate-700">{{ $dette->module?->libelle ?? '—' }}</td>
+                        <td>
                             <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold {{ $dette->statut === 'en_cours' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700' }}">
                                 <span class="h-1.5 w-1.5 rounded-full {{ $dette->statut === 'en_cours' ? 'bg-red-600' : 'bg-emerald-600' }}"></span>
                                 {{ ucfirst($dette->statut) }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-center">
+                        <td class="text-center">
                             @if($dette->statut === 'en_cours')
                             <form action="{{ route('admin.dettes.lever', $dette) }}" method="POST" class="inline">
                                 @csrf
-                                <button type="submit" class="text-xs px-3 py-1 bg-emerald-100 text-emerald-600 rounded hover:bg-emerald-200 transition font-medium">Lever</button>
+                                <button type="submit" class="inline-flex items-center rounded-lg bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-200 transition">Lever</button>
                             </form>
                             @endif
-                            <form action="{{ route('admin.dettes.destroy', $dette) }}" method="POST" class="inline">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="text-xs px-3 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200 transition font-medium">Supprimer</button>
-                            </form>
                         </td>
                     </tr>
                     @empty
                     <tr>
                         <td colspan="5" class="px-6 py-8 text-center text-slate-500">
-                            Aucune dette trouvée
+                            Aucune dette trouve
                         </td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+
         <div class="px-6 py-4 border-t border-slate-100 bg-slate-50">
             {{ $dettes->links() }}
         </div>

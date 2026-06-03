@@ -1,121 +1,110 @@
 @extends('layouts.admin')
 
-@section('title', 'Programmation Hebdomadaire des Cours')
+@section('title', 'Grille Hebdomadaire')
 
 @section('content')
-<div class="p-8">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+<div class="admin-page">
+    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-slate-900">Programmation Hebdomadaire</h1>
-            <p class="text-slate-600 mt-1">Visualisez et gérez l'affectation des cours dans la grille du planning</p>
+            <p class="text-xs uppercase tracking-[0.25em] text-slate-400">Planning</p>
+            <h1 class="text-2xl font-bold text-slate-900">Grille hebdomadaire</h1>
+            <p class="mt-1 text-sm text-slate-500">Affichage des cours programmés pour la semaine sélectionnée.</p>
         </div>
-        <div class="flex items-center gap-3">
-            <a href="{{ route('admin.programme-cours.index') }}" class="inline-flex items-center gap-2 border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 px-4 py-2.5 rounded-xl text-sm font-medium transition duration-150">
+        <div class="inline-flex items-center gap-2">
+            <a href="{{ route('admin.programme-cours.index') }}" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
                 <i data-lucide="list" class="w-4 h-4"></i>
-                Vue Liste
+                Liste des cours
             </a>
-            <a href="{{ route('admin.programme-cours.create') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium shadow-sm transition duration-150">
+
+            <a href="{{ route('admin.programme-cours.create', ['date' => $dateDebut->format('Y-m-d')]) }}" class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 transition">
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 Ajouter un cours
             </a>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
-        <form action="{{ route('admin.programme-cours.grille') }}" method="GET" class="flex flex-col md:flex-row md:items-end gap-4">
-            <div class="w-full md:max-w-xs">
-                <label for="date_debut" class="block text-sm font-semibold text-slate-700 mb-1.5">Semaine du (Lundi)</label>
-                <input type="date"
-                    id="date_debut"
-                    name="date_debut"
-                    value="{{ $dateDebut->format('Y-m-d') }}"
-                    class="w-full px-4 py-2 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-blue-200 bg-white text-slate-900 focus:outline-none focus:ring-4 transition duration-150">
+    <form method="GET" action="{{ route('admin.programme-cours.grille') }}" class="admin-toolbar">
+        <div class="admin-toolbar-grid">
+            <div>
+                <label for="date_debut" class="block text-sm font-medium text-slate-700 mb-1">Semaine du</label>
+                <input type="date" name="date_debut" id="date_debut" value="{{ request('date_debut', $dateDebut->format('Y-m-d')) }}" class="admin-filter-input" />
             </div>
-
-            <div class="flex items-center gap-3 w-full md:w-auto">
-                <button type="submit" class="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition duration-150 w-full md:w-auto">
-                    <i data-lucide="search" class="w-4 h-4"></i>
-                    Afficher
-                </button>
-
-                <a href="{{ route('admin.programme-cours.grille', ['date_debut' => $dateDebut->copy()->subWeek()->format('Y-m-d')]) }}"
-                    class="inline-flex items-center justify-center border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 p-2.5 rounded-xl transition duration-150"
-                    title="Semaine précédente">
-                    <i data-lucide="chevron-left" class="w-5 h-5"></i>
-                </a>
-
-                <a href="{{ route('admin.programme-cours.grille', ['date_debut' => $dateDebut->copy()->addWeek()->format('Y-m-d')]) }}"
-                    class="inline-flex items-center justify-center gap-2 border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 px-4 py-2.5 rounded-xl text-sm font-medium transition duration-150 whitespace-nowrap w-full md:w-auto">
-                    Semaine suivante
-                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                </a>
+            <div>
+                <label for="filiere_id" class="block text-sm font-medium text-slate-700 mb-1">Filière</label>
+                <select name="filiere_id" id="filiere_id" class="admin-filter-select">
+                    <option value="">Toutes les filières</option>
+                    @foreach($filieres as $filiere)
+                    <option value="{{ $filiere->id }}" {{ request('filiere_id') == $filiere->id ? 'selected' : '' }}>{{ $filiere->libelle }}</option>
+                    @endforeach
+                </select>
             </div>
-        </form>
-    </div>
+            <div>
+                <label for="niveau_id" class="block text-sm font-medium text-slate-700 mb-1">Niveau</label>
+                <select name="niveau_id" id="niveau_id" class="admin-filter-select">
+                    <option value="">Tous les niveaux</option>
+                    @foreach($niveaux as $niveau)
+                    <option value="{{ $niveau->id }}" {{ request('niveau_id') == $niveau->id ? 'selected' : '' }}>{{ $niveau->libelle }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label for="semestre_id" class="block text-sm font-medium text-slate-700 mb-1">Semestre</label>
+                <select name="semestre_id" id="semestre_id" class="admin-filter-select">
+                    <option value="">Tous les semestres</option>
+                    @foreach($semestres as $semestre)
+                    <option value="{{ $semestre->id }}" {{ request('semestre_id') == $semestre->id ? 'selected' : '' }}>{{ $semestre->libelle }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="admin-toolbar-actions">
+                <button type="submit" class="admin-filter-button">Filtrer</button>
+            </div>
+        </div>
+    </form>
 
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full border-collapse table-fixed min-w-[800px]">
+    <div class="admin-shell">
+        <div class="admin-table-wrap overflow-x-auto">
+            <table class="admin-table min-w-full text-sm">
                 <thead>
-                    <tr class="bg-slate-50 border-b border-slate-200">
-                        <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 w-32 border-r border-slate-200">Horaire</th>
-                        @foreach($jours as $index => $jour)
-                        <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 border-r border-slate-200 last:border-r-0">
-                            <div class="font-bold text-slate-900">{{ $jour }}</div>
-                            <div class="text-[11px] text-slate-400 font-normal mt-0.5">
-                                {{ $dateDebut->copy()->addDays($index)->format('d/m') }}
-                            </div>
-                        </th>
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 bg-slate-50">Créneau</th>
+                        @foreach($jours as $jour)
+                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 bg-slate-50">{{ $jour }}</th>
                         @endforeach
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200">
                     @forelse($creneaux as $creneau)
-                    <tr class="h-28">
-                        <td class="p-3 text-center bg-slate-50 border-r border-slate-200 font-mono text-xs font-bold text-slate-700">
-                            {{ $creneau->libelle ?? substr($creneau->heure_debut, 0, 5) . ' - ' . substr($creneau->heure_fin, 0, 5) }}
+                    <tr class="admin-row">
+                        <td class="px-4 py-4 align-top text-slate-900 font-semibold whitespace-nowrap">
+                            {{ is_string($creneau->heure_debut) ? substr($creneau->heure_debut, 0, 5) : $creneau->heure_debut->format('H:i') }} - {{ is_string($creneau->heure_fin) ? substr($creneau->heure_fin, 0, 5) : $creneau->heure_fin->format('H:i') }}
                         </td>
-
-                        @foreach($jours as $index => $jour)
+                        @foreach($jours as $jour)
                         @php
                         $key = $jour . '-' . $creneau->id;
-                        $cours = $programmes->get($key);
-                        $cellDate = $dateDebut->copy()->addDays($index)->format('Y-m-d');
+                        $programme = $programmes[$key] ?? null;
                         @endphp
-                        <td class="p-2 border-r border-slate-200 last:border-r-0 align-top group relative bg-slate-50/30">
-                            @if($cours)
-                            <a href="{{ route('admin.programme-cours.edit', $cours) }}"
-                                class="block h-full w-full p-2.5 rounded-xl bg-blue-50 border border-blue-200 text-left hover:bg-blue-100 hover:border-blue-300 transition duration-150 flex flex-col justify-between shadow-sm group/card">
-                                <div>
-                                    <div class="font-bold text-blue-900 text-xs line-clamp-1 group-hover/card:text-blue-950">
-                                        {{ $cours->matiere->libelle }}
-                                    </div>
-                                    <div class="text-[11px] text-blue-700 font-medium mt-0.5 line-clamp-1">
-                                        {{ $cours->professeur->nom_complet ?? $cours->professeur->nom }}
-                                    </div>
+                        <td class="px-4 py-4 align-top">
+                            @if($programme)
+                            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                                <div class="text-sm font-semibold text-slate-900">{{ $programme->matiere?->libelle ?? 'N/A' }}</div>
+                                <div class="text-xs text-slate-500 mt-1">{{ $programme->professeur?->nom ?? 'Non assigné' }}</div>
+                                <div class="text-xs text-slate-500 mt-1">{{ $programme->salle?->nom_salle ?? 'Salle non définie' }}</div>
+                                <div class="mt-2 text-xs text-slate-500">{{ $programme->filiere?->libelle ?? '' }} {{ $programme->niveau?->libelle ?? '' }}</div>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    <a href="{{ route('admin.programme-cours.edit', ['programme' => $programme->id]) }}" class="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-700 hover:bg-slate-100 transition">Modifier</a>
                                 </div>
-                                <div class="inline-flex items-center gap-1 text-[10px] font-semibold bg-blue-200/50 text-blue-800 px-2 py-0.5 rounded-md w-max mt-2">
-                                    📍 {{ $cours->salle->nom_salle ?? 'N/A' }}
-                                </div>
-                            </a>
+                            </div>
                             @else
-                            <a href="{{ route('admin.programme-cours.create', ['jour' => $jour, 'creneau' => $creneau->id, 'date' => $cellDate]) }}"
-                                class="absolute inset-2 rounded-xl border border-dashed border-slate-200 group-hover:border-blue-400 group-hover:bg-white flex items-center justify-center opacity-0 group-hover:opacity-100 text-blue-600 shadow-sm transition-all duration-150">
-                                <i data-lucide="plus" class="w-5 h-5"></i>
-                            </a>
+                            <div class="text-slate-400 text-xs italic">Vide</div>
                             @endif
                         </td>
                         @endforeach
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="{{ count($jours) + 1 }}" class="px-6 py-12 text-center text-slate-500">
-                            <i data-lucide="calendar-x" class="mx-auto h-12 w-12 text-slate-300 mb-3"></i>
-                            <p class="text-lg font-medium text-slate-900">Aucun créneau horaire configuré</p>
-                            <p class="text-sm mt-1 mb-4">Vous devez ajouter des créneaux dans vos paramètres pour générer la grille.</p>
-                            <a href="{{ route('admin.creneaux.create') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-sm transition">
-                                <i data-lucide="plus" class="w-4 h-4"></i> Configurer les créneaux
-                            </a>
+                        <td colspan="{{ count($jours) + 1 }}" class="px-4 py-12 text-center text-slate-500">
+                            Aucune séance programmée pour cette semaine.
                         </td>
                     </tr>
                     @endforelse
@@ -126,7 +115,6 @@
 </div>
 
 <script>
-    // Initialisation des icônes Lucide
     lucide.createIcons();
 </script>
 @endsection

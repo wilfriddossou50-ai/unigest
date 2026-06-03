@@ -62,8 +62,9 @@ class ProgrammeCoursController extends Controller
 
         $filieres = Filiere::orderBy('libelle')->get(['id', 'libelle']);
         $niveaux = Niveau::orderBy('libelle')->get(['id', 'libelle']);
+        $semestres = Semestre::orderBy('libelle')->get(['id', 'libelle']);
 
-        $query = ProgrammeCours::with(['matiere', 'professeur', 'salle', 'creneau'])
+        $query = ProgrammeCours::with(['matiere', 'professeur', 'salle', 'creneau', 'filiere', 'niveau', 'semestre'])
             ->whereBetween('date_programme', [$dateDebut, $dateFin])
             ->where('statut', '!=', 'Annulé');
 
@@ -72,6 +73,9 @@ class ProgrammeCoursController extends Controller
         }
         if ($request->filled('niveau_id')) {
             $query->where('niveau_id', $request->niveau_id);
+        }
+        if ($request->filled('semestre_id')) {
+            $query->where('semestre_id', $request->semestre_id);
         }
 
         $programmes = $query->get()->keyBy(function ($item) {
@@ -84,8 +88,52 @@ class ProgrammeCoursController extends Controller
             'jours',
             'programmes',
             'filieres',
-            'niveaux'
+            'niveaux',
+            'semestres'
         ));
+    }
+
+    public function edit(ProgrammeCours $programme)
+    {
+        $data = $this->getFormLookups([
+            'filieres',
+            'niveaux',
+            'semestres',
+            'modules',
+            'matieres',
+            'professeurs',
+            'salles',
+            'creneaux'
+        ]);
+
+        return view('admin.programme-cours.edit', array_merge(['programme' => $programme], $data));
+    }
+
+    public function update(Request $request, ProgrammeCours $programme)
+    {
+        $validated = $this->validateRequest($request);
+        $validated['date_programme'] = Carbon::parse($validated['date_programme'])->format('Y-m-d');
+
+        $programme->update($validated);
+
+        return redirect()->route('admin.programme-cours.grille', ['date_debut' => $programme->date_programme->format('Y-m-d')])
+            ->with('success', 'Le cours a bien été mis à jour.');
+    }
+
+    public function annuler(Request $request, ProgrammeCours $programme)
+    {
+        $programme->update(['statut' => 'Annulé']);
+
+        return redirect()->route('admin.programme-cours.grille', ['date_debut' => $programme->date_programme->format('Y-m-d')])
+            ->with('success', 'Le cours a été annulé.');
+    }
+
+    public function destroy(ProgrammeCours $programme)
+    {
+        $programme->delete();
+
+        return redirect()->route('admin.programme-cours.index')
+            ->with('success', 'Le cours a été supprimé.');
     }
 
     public function create()

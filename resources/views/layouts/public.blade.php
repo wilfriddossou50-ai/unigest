@@ -94,6 +94,8 @@
             </div>
         </div>
 
+    </header>
+
     <!-- CONTENT -->
     <main class="min-h-[calc(100vh-80px)]">
         @yield('content')

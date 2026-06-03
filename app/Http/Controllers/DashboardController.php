@@ -13,6 +13,7 @@ use App\Models\Filiere;
 use App\Models\ResultatAnnuel;
 use App\Models\ResultatSemestre;
 use App\Models\ProgressionEtudiant;
+use App\Models\Dette;
 use App\Services\ModuleService;
 use App\Services\ResultatAnnuelService;
 use App\Services\ResultatSemestreService;
@@ -65,20 +66,26 @@ class DashboardController extends Controller
 
         return $user->etudiant()->with(['filiere', 'niveau'])->first();
     }
-    public function etudiantDashboard(): RedirectResponse|View
+
+    protected function ensureStudentAccess(): ?RedirectResponse
     {
-        // 1. On récupère l'utilisateur authentifié
+        /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        // 2. On s'assure qu'il est bien une instance de votre modèle User
-        // Cela dit à PHP : "Ce $user a accès à toutes les méthodes de App\Models\User"
-        /** @var \App\Models\User $user */
-
-        // 3. Maintenant, la méthode sera reconnue sans erreur
-        if (! $user->canAccessStudentSpace()) {
+        if (! $user || ! $user->canAccessStudentSpace()) {
             return Redirect::route('attente');
         }
 
+        return null;
+    }
+
+    public function etudiantDashboard(): RedirectResponse|View
+    {
+        if ($redirect = $this->ensureStudentAccess()) {
+            return $redirect;
+        }
+
+        $user = Auth::user();
         $etudiant = $this->getStudentEtudiant();
         $latestNotes = $etudiant ? $etudiant->notes()->with('matiere.module.semestre')->latest()->limit(5)->get() : collect();
         $pendingDettes = $etudiant ? $etudiant->dettes()->where('statut', 'en_cours')->count() : 0;
@@ -86,8 +93,33 @@ class DashboardController extends Controller
         return view('dashboard.etudiant.index', compact('user', 'etudiant', 'latestNotes', 'pendingDettes'));
     }
 
+    public function etudiantDettes(): RedirectResponse|View
+    {
+        if ($redirect = $this->ensureStudentAccess()) {
+            return $redirect;
+        }
+
+        $etudiant = $this->getStudentEtudiant();
+        if (! $etudiant) {
+            return Redirect::route('attente');
+        }
+
+        $dettes = Dette::with(['matiere.module', 'semestre'])
+            ->where('etudiant_id', $etudiant->id)
+            ->latest()
+            ->get();
+
+        $pending = $dettes->where('statut', 'en_cours')->count();
+
+        return view('dashboard.etudiant.dettes', compact('etudiant', 'dettes', 'pending'));
+    }
+
     public function etudiantNotes(Request $request): RedirectResponse|View
     {
+        if ($redirect = $this->ensureStudentAccess()) {
+            return $redirect;
+        }
+
         $etudiant = $this->getStudentEtudiant();
         if (! $etudiant) return Redirect::route('attente');
 
@@ -124,6 +156,10 @@ class DashboardController extends Controller
 
     public function etudiantModules(ModuleService $moduleService): RedirectResponse|View
     {
+        if ($redirect = $this->ensureStudentAccess()) {
+            return $redirect;
+        }
+
         $etudiant = $this->getStudentEtudiant();
         if (! $etudiant) return Redirect::route('attente');
 
@@ -139,12 +175,16 @@ class DashboardController extends Controller
 
     public function etudiantMatieres(): RedirectResponse|View
     {
+        if ($redirect = $this->ensureStudentAccess()) {
+            return $redirect;
+        }
+
         $etudiant = $this->getStudentEtudiant();
         if (! $etudiant) return Redirect::route('attente');
 
         $moduleIds = $etudiant->filiere?->modules()->pluck('id') ?? collect();
         $matieres = $moduleIds->isNotEmpty()
-            ? Matiere::with('module')->whereIn('module_id', $moduleIds)->get()
+            ? Matiere::with('module.semestre')->whereIn('module_id', $moduleIds)->get()
             : collect();
 
         return view('dashboard.etudiant.matieres', compact('etudiant', 'matieres'));
@@ -152,6 +192,10 @@ class DashboardController extends Controller
 
     public function etudiantEmploi(): RedirectResponse|View
     {
+        if ($redirect = $this->ensureStudentAccess()) {
+            return $redirect;
+        }
+
         $etudiant = $this->getStudentEtudiant();
         if (! $etudiant) {
             return Redirect::route('attente');
@@ -179,6 +223,10 @@ class DashboardController extends Controller
 
     public function etudiantBulletin(): RedirectResponse|View
     {
+        if ($redirect = $this->ensureStudentAccess()) {
+            return $redirect;
+        }
+
         $etudiant = $this->getStudentEtudiant();
         if (! $etudiant) {
             return Redirect::route('attente');
@@ -248,9 +296,20 @@ class DashboardController extends Controller
             return;
         }
 
-        $s1 = $resultats->first()->moyenne ?? 0;
-        $s2 = $resultats->count() > 1 ? $resultats->get(1)->moyenne : 0;
-        $moyenneAnnuel = $serviceAnnuel->calculerMoyenne($s1, $s2);
+        $moyennesSemestres = $resultats
+            ->filter(fn($resultat) => $resultat->decision !== 'en_cours')
+            ->pluck('moyenne')
+            ->filter(fn($moyenne) => is_numeric($moyenne))
+            ->values()
+            ->all();
+
+        if (empty($moyennesSemestres)) {
+            return;
+        }
+
+        $moyennesSemestres = array_pad($moyennesSemestres, 2, 0);
+
+        $moyenneAnnuel = $serviceAnnuel->calculerMoyenne($moyennesSemestres);
         $decisionAnnuel = $serviceAnnuel->decision($moyenneAnnuel, $etudiant->niveau);
 
         ResultatAnnuel::updateOrCreate(
@@ -260,8 +319,8 @@ class DashboardController extends Controller
                 'annee_academique' => date('Y'),
             ],
             [
-                'moyenne_s1' => $s1,
-                'moyenne_s2' => $s2,
+                'moyenne_s1' => $moyennesSemestres[0] ?? 0,
+                'moyenne_s2' => $moyennesSemestres[1] ?? 0,
                 'moyenne_annuelle' => $moyenneAnnuel,
                 'decision' => $decisionAnnuel,
             ]

@@ -15,7 +15,7 @@
 
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-6">
-            <form action="{{ route('admin.creneaux.update', $creneau) }}" method="POST" class="space-y-6">
+            <form action="{{ url('admin/creneaux/' . $creneau->id) }}" method="POST" class="space-y-6">
                 @csrf
                 @method('PUT')
 
@@ -27,7 +27,7 @@
                         <input type="time"
                             id="heure_debut"
                             name="heure_debut"
-                            value="{{ old('heure_debut', substr($creneau->heure_debut, 0, 5)) }}"
+                            value="{{ old('heure_debut', $creneau->heure_debut ? substr($creneau->heure_debut, 0, 5) : '') }}"
                             class="w-full px-4 py-2.5 rounded-xl border @error('heure_debut') border-red-300 focus:border-red-500 focus:ring-red-200 @else border-slate-200 focus:border-blue-500 focus:ring-blue-200 @enderror bg-white text-slate-900 font-mono focus:outline-none focus:ring-4 transition duration-150"
                             required>
 
@@ -45,7 +45,7 @@
                         <input type="time"
                             id="heure_fin"
                             name="heure_fin"
-                            value="{{ old('heure_fin', substr($creneau->heure_fin, 0, 5)) }}"
+                            value="{{ old('heure_fin', $creneau->heure_fin ? substr($creneau->heure_fin, 0, 5) : '') }}"
                             class="w-full px-4 py-2.5 rounded-xl border @error('heure_fin') border-red-300 focus:border-red-500 focus:ring-red-200 @else border-slate-200 focus:border-blue-500 focus:ring-blue-200 @enderror bg-white text-slate-900 font-mono focus:outline-none focus:ring-4 transition duration-150"
                             required>
 

@@ -7,12 +7,16 @@ use App\Models\Dette;
 
 class DetteService
 {
+    public function __construct(protected MatiereService $matiereService)
+    {
+    }
+
     /**
      * Créer dette si matière non validée
      */
     public function verifierDette(Note $note)
     {
-        if ($note->statut === 'echec' || $note->statut === 'reprise') {
+        if ($this->matiereService->estEnDette($note->statut)) {
             Dette::updateOrCreate(
                 [
                     'etudiant_id' => $note->etudiant_id,
@@ -36,6 +40,18 @@ class DetteService
                 'statut' => 'levee',
             ]);
         }
+    }
+
+    /**
+     * Supprimer toute dette liée à une note supprimée.
+     * Utile pour éviter les dettes fantômes quand la note n'existe plus.
+     */
+    public function supprimerDette(Note $note): void
+    {
+        Dette::where([
+            'etudiant_id' => $note->etudiant_id,
+            'matiere_id' => $note->matiere_id,
+        ])->delete();
     }
 
     /**

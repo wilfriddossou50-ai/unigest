@@ -49,11 +49,13 @@
 
             <div>
                 <label class="block text-sm font-semibold text-slate-900 mb-2">Étudiant *</label>
-                <select name="etudiant_id" required class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('etudiant_id') border-red-500 @enderror">
+                <select name="etudiant_id" required @class([ 'w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500' , 'border-slate-200'=> !$errors->has('etudiant_id'),
+                    'border-red-500' => $errors->has('etudiant_id'),
+                    ])>
                     <option value="">Sélectionnez un étudiant</option>
                     @foreach($etudiants as $etudiant)
                     <option value="{{ $etudiant->id }}" {{ (old('etudiant_id', request('etudiant_id')) == $etudiant->id) ? 'selected' : '' }}>
-                        {{ $etudiant->user->nom ?? '' }} {{ $etudiant->user->prenom ?? '' }} — {{ $etudiant->filiere->libelle ?? 'Filière inconnue' }}
+                        {{ $etudiant->user?->nom ?? '' }} {{ $etudiant->user?->prenom ?? '' }} — {{ $etudiant->filiere?->libelle ?? 'Filière inconnue' }}
                     </option>
                     @endforeach
                 </select>
@@ -64,11 +66,13 @@
 
             <div>
                 <label class="block text-sm font-semibold text-slate-900 mb-2">Matière *</label>
-                <select name="matiere_id" required class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('matiere_id') border-red-500 @enderror">
+                <select name="matiere_id" required @class([ 'w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500' , 'border-slate-200'=> !$errors->has('matiere_id'),
+                    'border-red-500' => $errors->has('matiere_id'),
+                    ])>
                     <option value="">Sélectionnez une matière</option>
                     @foreach($matieres as $matiere)
                     <option value="{{ $matiere->id }}" {{ (old('matiere_id', request('matiere_id')) == $matiere->id) ? 'selected' : '' }}>
-                        {{ $matiere->libelle ?? $matiere->code }} — {{ $matiere->module->filiere->libelle ?? 'Filière inconnue' }}
+                        {{ $matiere->libelle ?? $matiere->code }} — {{ $matiere->module?->filiere?->libelle ?? 'Filière inconnue' }}
                     </option>
                     @endforeach
                 </select>

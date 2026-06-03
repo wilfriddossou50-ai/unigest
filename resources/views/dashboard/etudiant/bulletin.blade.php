@@ -10,8 +10,8 @@
     <div class="hidden print:block mb-8 text-center border-b-2 border-slate-900 pb-6">
         <h1 class="text-3xl font-black uppercase tracking-wider">Relevé de Résultats Officiel</h1>
         <p class="text-xl mt-3 font-bold">{{ $user->nom }} {{ $user->prenom }}</p>
-        <p class="text-md text-slate-700 mt-1">Numéro Étudiant : {{ $etudiant->numero_etudiant ?? 'N/A' }} | Filière : {{ $etudiant->filiere->libelle ?? '' }}</p>
-        <p class="text-sm text-slate-500 mt-1">Année Académique : {{ $resultatAnnuel->annee_academique ?? date('Y').'-'.(date('Y')+1) }} | Niveau : {{ $etudiant->niveau->libelle ?? 'N/A' }}</p>
+        <p class="text-md text-slate-700 mt-1">Numéro Étudiant : {{ $etudiant->numero_etudiant ?? 'N/A' }} | Filière : {{ $etudiant->filiere?->libelle ?? '' }}</p>
+        <p class="text-sm text-slate-500 mt-1">Année Académique : {{ $resultatAnnuel->annee_academique ?? date('Y').'-'.(date('Y')+1) }} | Niveau : {{ $etudiant->niveau?->libelle ?? 'N/A' }}</p>
     </div>
 
     <!-- 1. PROGRESSION & DECISION ANNUELLE -->
@@ -27,7 +27,7 @@
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Moyenne Globale</p>
                 <div class="mt-4 flex items-baseline gap-2">
                     @if($resultatAnnuel)
-                    <p class="text-5xl font-black text-sky-600">{{ number_format($resultatAnnuel->moyenne_annuelle, 2, ',', '.') }}</p>
+                    <p class="text-5xl font-black text-sky-600">{{ number_format((float) ($resultatAnnuel->moyenne_annuelle ?? 0), 2, ',', '.') }}</p>
                     <p class="text-sm font-bold text-slate-400">/ 20</p>
                     @else
                     <p class="text-2xl font-bold text-slate-400">En attente de calcul</p>
@@ -56,7 +56,7 @@
                         <i data-lucide="alert-triangle" class="w-6 h-6"></i>
                     </div>
                     <h3 class="text-xl font-bold text-amber-900 uppercase tracking-wide">Ajourné</h3>
-                    <p class="mt-1 text-sm text-amber-700 font-medium">Vous êtes admis avec des dettes de matières (crédits à rattraper).</p>
+                    <p class="mt-1 text-sm text-amber-700 font-medium">Votre moyenne annuelle est insuffisante, mais une reprise reste possible selon les règles du niveau.</p>
                 </div>
                 @else
                 <div class="rounded-2xl bg-emerald-50 p-6 border border-emerald-200 text-center">
@@ -73,7 +73,7 @@
                         <i data-lucide="x-circle" class="w-6 h-6"></i>
                     </div>
                     <h3 class="text-xl font-bold text-red-900 uppercase tracking-wide">Redoublant</h3>
-                    <p class="mt-1 text-sm text-red-700 font-medium">Vous n'avez pas validé les crédits requis pour le passage.</p>
+                    <p class="mt-1 text-sm text-red-700 font-medium">Vous n'avez pas validé les conditions requises pour le passage.</p>
                 </div>
                 @else
                 <div class="rounded-2xl bg-slate-50 p-6 border border-slate-200 text-center">
@@ -110,27 +110,27 @@
             <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-200">
                 <div class="flex items-start justify-between">
                     <div>
-                        <h3 class="text-xl font-bold text-slate-900">{{ $rs->semestre->libelle ?? 'Semestre Inconnu' }}</h3>
+                        <h3 class="text-xl font-bold text-slate-900">{{ $rs->semestre?->libelle ?? 'Semestre Inconnu' }}</h3>
                         <p class="text-xs font-bold text-slate-500 mt-1">Année {{ $resultatAnnuel->annee_academique ?? date('Y') }}</p>
                     </div>
                     @if($rs->decision === 'admis')
                     <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-black uppercase tracking-wider text-emerald-700 border border-emerald-200">
                         <i data-lucide="check" class="w-3.5 h-3.5"></i> Validé
                     </span>
-                    @elseif(in_array($rs->decision, ['ajourne', 'redoublant']))
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1.5 text-xs font-black uppercase tracking-wider text-red-700 border border-red-200">
-                        <i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Non Validé
+                    @elseif($rs->decision === 'en_cours')
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-black uppercase tracking-wider text-slate-700 border border-slate-200">
+                        <i data-lucide="clock" class="w-3.5 h-3.5"></i> En cours
                     </span>
                     @else
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-black uppercase tracking-wider text-slate-700 border border-slate-200">
-                        En cours
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1.5 text-xs font-black uppercase tracking-wider text-red-700 border border-red-200">
+                        <i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Non Validé
                     </span>
                     @endif
                 </div>
 
                 <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
                     <p class="text-sm font-medium text-slate-600">Moyenne du semestre</p>
-                    <p class="text-2xl font-black text-slate-900">{{ number_format($rs->moyenne, 2, ',', '.') }}</p>
+                    <p class="text-2xl font-black text-slate-900">{{ number_format((float) ($rs->moyenne ?? 0), 2, ',', '.') }}</p>
                 </div>
             </div>
             @empty

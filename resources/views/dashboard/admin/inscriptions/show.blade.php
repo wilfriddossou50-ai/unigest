@@ -30,7 +30,7 @@
                 </div>
                 <div>
                     <dt class="text-sm font-medium text-slate-600">Email</dt>
-                    <dd class="mt-1 text-base text-slate-700">{{ $inscription->user->email }}</dd>
+                    <dd class="mt-1 text-base text-slate-700">{{ $inscription->user?->email ?? 'N/A' }}</dd>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>

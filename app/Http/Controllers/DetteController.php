@@ -64,14 +64,4 @@ class DetteController extends Controller
 
         return back()->with('success', 'La dette a été levée avec succès.');
     }
-
-    /**
-     * Suppression d'une dette
-     */
-    public function destroy(Dette $dette)
-    {
-        $dette->delete();
-
-        return back()->with('success', 'Dette supprimée définitivement.');
-    }
 }

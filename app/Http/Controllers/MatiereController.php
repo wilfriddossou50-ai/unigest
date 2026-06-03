@@ -24,7 +24,8 @@ class MatiereController extends Controller
     public function create()
     {
         $modules = Module::with(['filiere', 'semestre'])
-            ->orderBy('nom')
+            ->orderBy('libelle')
+            ->orderBy('code')
             ->get();
 
         return view('admin.matieres.create', compact('modules'));
@@ -47,7 +48,8 @@ class MatiereController extends Controller
     public function edit(Matiere $matiere)
     {
         $modules = Module::with(['filiere', 'semestre'])
-            ->orderBy('nom')
+            ->orderBy('libelle')
+            ->orderBy('code')
             ->get();
 
         return view('admin.matieres.edit', compact('matiere', 'modules'));

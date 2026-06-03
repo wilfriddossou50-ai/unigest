@@ -61,8 +61,8 @@
                 </div>
                 <div class="col-md-6">
                     <strong>Décision :</strong>
-                    <span class="badge {{ $semestre->decision === 'admis' ? 'bg-success' : ($semestre->decision === 'ajourne' || $semestre->decision === 'en_cours' ? 'bg-warning' : 'bg-danger') }}">
-                        {{ ucfirst(str_replace('_', ' ', $semestre->decision ?? 'en cours')) }}
+                    <span class="badge {{ $semestre->decision === 'admis' ? 'bg-success' : ($semestre->decision === 'en_cours' ? 'bg-warning' : 'bg-danger') }}">
+                        {{ $semestre->decision === 'admis' ? 'Validé' : ($semestre->decision === 'en_cours' ? 'En cours' : 'Non validé') }}
                     </span>
                 </div>
             </div>
@@ -84,7 +84,7 @@
                 <tbody>
                     @forelse($semestre->matieres ?? [] as $matiere)
                     <tr>
-                        <td>{{ $matiere->module->libelle ?? $matiere->module->nom ?? '-' }}</td>
+                        <td>{{ $matiere->module?->libelle ?? $matiere->module?->nom ?? '-' }}</td>
                         <td>{{ $matiere->libelle }}</td>
                         <td>{{ $matiere->cc ?? '-' }}</td>
                         <td>{{ $matiere->examen ?? '-' }}</td>

@@ -29,7 +29,7 @@
                 <tr class="hover:bg-slate-50">
                     <td class="px-6 py-4 text-slate-900">
                         {{ $inscription->nom }} {{ $inscription->prenom }}
-                        <div class="text-xs text-slate-500">{{ $inscription->user->email }}</div>
+                        <div class="text-xs text-slate-500">{{ $inscription->user?->email ?? 'N/A' }}</div>
                     </td>
                     <td class="px-6 py-4 text-slate-700">{{ $inscription->filiere?->libelle ?? 'N/A' }}</td>
                     <td class="px-6 py-4">

@@ -70,9 +70,20 @@ class ResultatAnnuelController extends Controller
                 continue;
             }
 
-            $s1 = $notes->first()->moyenne ?? 0;
-            $s2 = ($notes->count() > 1) ? $notes->values()->get(1)->moyenne : 0;
-            $moyenne = $this->annuelService->calculerMoyenne($s1, $s2);
+            $moyennesSemestres = $notes
+                ->filter(fn ($resultat) => $resultat->decision !== 'en_cours')
+                ->pluck('moyenne')
+                ->filter(fn ($moyenne) => is_numeric($moyenne))
+                ->values()
+                ->all();
+
+            if (empty($moyennesSemestres)) {
+                continue;
+            }
+
+            $moyennesSemestres = array_pad($moyennesSemestres, 2, 0);
+
+            $moyenne = $this->annuelService->calculerMoyenne($moyennesSemestres);
             $decision = $this->annuelService->decision($moyenne, $niveau);
 
             ResultatAnnuel::updateOrCreate(
@@ -82,8 +93,8 @@ class ResultatAnnuelController extends Controller
                     'annee_academique' => $annee,
                 ],
                 [
-                    'moyenne_s1' => $s1,
-                    'moyenne_s2' => $s2,
+                    'moyenne_s1' => $moyennesSemestres[0] ?? 0,
+                    'moyenne_s2' => $moyennesSemestres[1] ?? 0,
                     'moyenne_annuelle' => $moyenne,
                     'decision' => $decision,
                 ]
@@ -137,11 +148,21 @@ class ResultatAnnuelController extends Controller
             }
 
             // On extrait ses deux moyennes de semestres
-            $s1 = $notes->first()->moyenne ?? 0;
-            $s2 = ($notes->count() > 1) ? $notes->values()->get(1)->moyenne : 0;
+            $moyennesSemestres = $notes
+                ->filter(fn ($resultat) => $resultat->decision !== 'en_cours')
+                ->pluck('moyenne')
+                ->filter(fn ($moyenne) => is_numeric($moyenne))
+                ->values()
+                ->all();
+
+            if (empty($moyennesSemestres)) {
+                continue;
+            }
+
+            $moyennesSemestres = array_pad($moyennesSemestres, 2, 0);
 
             // On crée l'enregistrement unique
-            $this->enregistrerLeBilan($etudiant, $niveau, $s1, $s2);
+            $this->enregistrerLeBilan($etudiant, $niveau, $moyennesSemestres);
             $compteur++;
         }
 
@@ -159,12 +180,22 @@ class ResultatAnnuelController extends Controller
             ->select('resultats_semestre.*')
             ->get();
 
-        $s1 = $notes->first()->moyenne ?? 0;
-        $s2 = ($notes->count() > 1) ? $notes->values()->get(1)->moyenne : 0;
+        $moyennesSemestres = $notes
+            ->filter(fn ($resultat) => $resultat->decision !== 'en_cours')
+            ->pluck('moyenne')
+            ->filter(fn ($moyenne) => is_numeric($moyenne))
+            ->values()
+            ->all();
+
+        if (empty($moyennesSemestres)) {
+            return back()->with('error', 'Aucune moyenne de semestre disponible pour ce calcul.');
+        }
+
+        $moyennesSemestres = array_pad($moyennesSemestres, 2, 0);
 
         ResultatAnnuel::where('etudiant_id', $etudiant->id)->where('niveau_id', $niveau->id)->delete();
 
-        $this->enregistrerLeBilan($etudiant, $niveau, $s1, $s2);
+        $this->enregistrerLeBilan($etudiant, $niveau, $moyennesSemestres);
 
         return back()->with('success', 'Le résultat annuel de l\'étudiant a été mis à jour.');
     }
@@ -172,17 +203,17 @@ class ResultatAnnuelController extends Controller
     /**
      * Sauvegarde
      */
-    private function enregistrerLeBilan(Etudiant $etudiant, Niveau $niveau, $s1, $s2)
+    private function enregistrerLeBilan(Etudiant $etudiant, Niveau $niveau, array $moyennesSemestres)
     {
-        $moyenne = $this->annuelService->calculerMoyenne($s1, $s2);
+        $moyenne = $this->annuelService->calculerMoyenne($moyennesSemestres);
         $decision = $this->annuelService->decision($moyenne, $niveau);
 
         ResultatAnnuel::create([
             'etudiant_id' => $etudiant->id,
             'niveau_id' => $niveau->id,
             'annee_academique' => date('Y'),
-            'moyenne_s1' => $s1,
-            'moyenne_s2' => $s2,
+            'moyenne_s1' => $moyennesSemestres[0] ?? 0,
+            'moyenne_s2' => $moyennesSemestres[1] ?? 0,
             'moyenne_annuelle' => $moyenne,
             'decision' => $decision
         ]);

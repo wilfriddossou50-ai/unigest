@@ -1,141 +1,126 @@
 @extends('layouts.admin')
 
-@section('title', 'Liste des Cours Programmés')
+@section('title', 'Liste des cours programmés')
 
 @section('content')
-<div class="p-8">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+<div class="admin-page">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-slate-900">Cours Programmés</h1>
-            <p class="text-slate-600 mt-1">Gérez, filtrez et modifiez l'ensemble des enseignements planifiés.</p>
+            <p class="text-xs uppercase tracking-[0.25em] text-slate-400">Planning</p>
+            <h1 class="text-2xl font-bold text-slate-900">Cours programmés</h1>
+            <p class="mt-1 text-sm text-slate-500">Gérez, filtrez et modifiez l'ensemble des enseignements planifiés.</p>
         </div>
-        <div>
-            <a href="{{ route('admin.programme-cours.grille') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium shadow-sm transition duration-150">
-                <i data-lucide="calendar" class="w-4 h-4"></i>
-                Vue Grille Hebdomadaire
-            </a>
-        </div>
+        <a href="{{ route('admin.programme-cours.grille') }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+            Vue Grille Hebdomadaire
+        </a>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
-        <form action="{{ route('admin.programme-cours.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-            <div>
-                <label for="filiere_id" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Filière</label>
-                <select id="filiere_id" name="filiere_id" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:border-blue-500 focus:ring-blue-200 focus:outline-none focus:ring-4 transition duration-150">
-                    <option value="">Toutes les filières</option>
-                    @foreach($filieres as $filiere)
-                    <option value="{{ $filiere->id }}" {{ request('filiere_id') == $filiere->id ? 'selected' : '' }}>
-                        {{ $filiere->libelle }}
-                    </option>
-                    @endforeach
-                </select>
-            </div>
+    <div class="admin-toolbar mb-6">
+        <form action="{{ route('admin.programme-cours.index') }}" method="GET" class="admin-toolbar-grid">
+            <select id="filiere_id" name="filiere_id" class="admin-filter-select">
+                <option value="">Toutes les filières</option>
+                @foreach($filieres as $filiere)
+                <option value="{{ $filiere->id }}" {{ request('filiere_id') == $filiere->id ? 'selected' : '' }}>
+                    {{ $filiere->libelle }}
+                </option>
+                @endforeach
+            </select>
 
-            <div>
-                <label for="niveau_id" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Niveau</label>
-                <select id="niveau_id" name="niveau_id" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:border-blue-500 focus:ring-blue-200 focus:outline-none focus:ring-4 transition duration-150">
-                    <option value="">Tous les niveaux</option>
-                    @foreach($niveaux as $niveau)
-                    <option value="{{ $niveau->id }}" {{ request('niveau_id') == $niveau->id ? 'selected' : '' }}>
-                        {{ $niveau->libelle }}
-                    </option>
-                    @endforeach
-                </select>
-            </div>
+            <select id="niveau_id" name="niveau_id" class="admin-filter-select">
+                <option value="">Tous les niveaux</option>
+                @foreach($niveaux as $niveau)
+                <option value="{{ $niveau->id }}" {{ request('niveau_id') == $niveau->id ? 'selected' : '' }}>
+                    {{ $niveau->libelle }}
+                </option>
+                @endforeach
+            </select>
 
-            <div>
-                <label for="semestre_id" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Semestre</label>
-                <select id="semestre_id" name="semestre_id" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:border-blue-500 focus:ring-blue-200 focus:outline-none focus:ring-4 transition duration-150">
-                    <option value="">Tous les semestres</option>
-                    @foreach($semestres as $semestre)
-                    <option value="{{ $semestre->id }}" {{ request('semestre_id') == $semestre->id ? 'selected' : '' }}>
-                        {{ $semestre->libelle }}
-                    </option>
-                    @endforeach
-                </select>
-            </div>
+            <select id="semestre_id" name="semestre_id" class="admin-filter-select">
+                <option value="">Tous les semestres</option>
+                @foreach($semestres as $semestre)
+                <option value="{{ $semestre->id }}" {{ request('semestre_id') == $semestre->id ? 'selected' : '' }}>
+                    {{ $semestre->libelle }}
+                </option>
+                @endforeach
+            </select>
 
-            <div class="flex items-center gap-2">
-                <button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-sm font-medium transition duration-150 h-[38px]">
-                    Filtrer
-                </button>
-                <a href="{{ route('admin.programme-cours.index') }}" class="w-full inline-flex items-center justify-center gap-2 border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 px-4 py-2 rounded-xl text-sm font-medium transition duration-150 h-[38px]">
+            <div class="admin-toolbar-actions">
+                <button type="submit" class="admin-filter-button">Filtrer</button>
+                <a href="{{ route('admin.programme-cours.index') }}" class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
                     Réinitialiser
                 </a>
             </div>
         </form>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+    <div class="admin-shell">
+        <div class="admin-table-wrap">
+            <table class="admin-table min-w-[980px] text-sm">
                 <thead>
-                    <tr class="bg-slate-50 border-b border-slate-200">
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Date & Jour</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Créneau</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Matière</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Enseignant</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Salle</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Filière / Niveau</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Statut</th>
-                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-end">Actions</th>
+                    <tr>
+                        <th>Date &amp; jour</th>
+                        <th>Créneau</th>
+                        <th>Matière</th>
+                        <th>Enseignant</th>
+                        <th class="hidden lg:table-cell">Salle</th>
+                        <th class="hidden xl:table-cell">Filière / niveau</th>
+                        <th>Statut</th>
+                        <th class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200">
                     @forelse($programmes as $programme)
-                    <tr class="hover:bg-slate-50/50 transition duration-100">
-                        <td class="px-6 py-4 whitespace-nowrap">
+                    <tr class="admin-row">
+                        <td class="whitespace-nowrap">
                             <div class="text-sm font-semibold text-slate-900">{{ $programme->date_programme->format('d/m/Y') }}</div>
                             <div class="text-xs text-slate-400 mt-0.5">{{ $programme->jour_semaine }}</div>
                         </td>
-
-                        <td class="px-6 py-4 whitespace-nowrap font-mono text-xs text-slate-600 font-medium">
-                            {{ $programme->creneau->libelle ?? substr($programme->creneau->heure_debut, 0, 5) . ' - ' . substr($programme->creneau->heure_fin, 0, 5) }}
+                        <td class="whitespace-nowrap font-mono text-xs text-slate-600 font-medium">
+                            {{ $programme->creneau?->libelle ?? ($programme->creneau?->heure_debut ? substr($programme->creneau->heure_debut, 0, 5) . ' - ' . substr($programme->creneau->heure_fin, 0, 5) : 'N/A') }}
                         </td>
-
-                        <td class="px-6 py-4">
-                            <div class="text-sm font-bold text-slate-900 line-clamp-1">{{ $programme->matiere->libelle }}</div>
+                        <td>
+                            <div class="text-sm font-bold text-slate-900 line-clamp-1">{{ $programme->matiere?->libelle ?? 'N/A' }}</div>
                         </td>
-
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-slate-700 font-medium">{{ $programme->professeur->nom_complet ?? $programme->professeur->nom }}</div>
+                        <td class="whitespace-nowrap">
+                            <div class="text-sm text-slate-700 font-medium">{{ $programme->professeur?->nom_complet ?? $programme->professeur?->nom ?? 'N/A' }}</div>
                         </td>
-
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="hidden lg:table-cell whitespace-nowrap">
                             @if($programme->salle)
                             <span class="inline-flex items-center gap-1 text-xs font-semibold bg-slate-100 text-slate-800 px-2.5 py-1 rounded-lg">
-                                📍 {{ $programme->salle->nom_salle }}
+                                {{ $programme->salle->nom_salle }}
                             </span>
                             @else
                             <span class="text-xs text-slate-400 italic">N/A</span>
                             @endif
                         </td>
-
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-slate-800 font-medium">{{ $programme->filiere->libelle ?? 'N/A' }}</div>
-                            <div class="text-xs text-slate-400 mt-0.5">{{ $programme->niveau->libelle ?? 'N/A' }}</div>
+                        <td class="hidden xl:table-cell whitespace-nowrap">
+                            <div class="text-sm text-slate-800 font-medium">{{ $programme->filiere?->libelle ?? 'N/A' }}</div>
+                            <div class="text-xs text-slate-400 mt-0.5">{{ $programme->niveau?->libelle ?? 'N/A' }}</div>
                         </td>
-
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="whitespace-nowrap">
                             @if($programme->statut === 'Programmé')
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                 Programmé
                             </span>
-                            @elseif($programme->statut === 'Modifié')
+                            @elseif(in_array($programme->statut, ['Modifié', 'Modifie']))
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
                                 <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                                 Modifié
                             </span>
-                            @else
+                            @elseif($programme->statut === 'Annulé')
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
                                 <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                                 Annulé
                             </span>
+                            @else
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-50 text-slate-700 border border-slate-200">
+                                {{ $programme->statut ?? '—' }}
+                            </span>
                             @endif
                         </td>
-
-                        <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                        <td class="text-end whitespace-nowrap text-sm font-medium">
                             <div class="inline-flex items-center gap-2">
                                 <a href="{{ route('admin.programme-cours.edit', $programme) }}"
                                     class="p-2 text-slate-400 hover:text-blue-600 bg-slate-50 hover:bg-blue-50 rounded-lg transition duration-150"
@@ -149,7 +134,7 @@
                                     @method('PUT')
                                     <button type="submit"
                                         class="p-2 text-slate-400 hover:text-rose-600 bg-slate-50 hover:bg-rose-50 rounded-lg transition duration-150"
-                                        onclick="return confirm('Êtes-vous certain de vouloir annuler ce cours ?\nDes notifications de modification seront envoyées aux étudiants.')"
+                                        onclick="return confirm('Êtes-vous certain de vouloir annuler ce cours ?\nDes notifications de modification seront envoyes aux tudiants.')"
                                         title="Annuler le cours">
                                         <i data-lucide="calendar-off" class="w-4 h-4"></i>
                                     </button>
@@ -180,7 +165,6 @@
 </div>
 
 <script>
-    // Initialisation des icônes Lucide
     lucide.createIcons();
 </script>
 @endsection

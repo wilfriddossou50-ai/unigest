@@ -90,3 +90,61 @@
   }
 }
 
+@layer components {
+  .admin-page {
+    @apply p-4 md:p-8;
+  }
+
+  .admin-toolbar {
+    @apply mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5;
+  }
+
+  .admin-toolbar-grid {
+    @apply grid gap-3 md:grid-cols-2 xl:grid-cols-4;
+  }
+
+  .admin-toolbar-actions {
+    @apply flex flex-wrap items-center justify-end gap-3 pt-1;
+  }
+
+  .admin-shell {
+    @apply overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm;
+  }
+
+  .admin-table-wrap {
+    @apply overflow-x-auto;
+  }
+
+  .admin-table {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .admin-table thead {
+    @apply bg-slate-50;
+  }
+
+  .admin-table th {
+    @apply px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 md:px-6 md:py-4;
+  }
+
+  .admin-table td {
+    @apply px-4 py-4 text-sm text-slate-700 align-top md:px-6;
+  }
+
+  .admin-row:hover {
+    background-color: rgb(248 250 252);
+  }
+
+  .admin-filter-input {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100;
+  }
+
+  .admin-filter-select {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100;
+  }
+
+  .admin-filter-button {
+    @apply inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800;
+  }
+}

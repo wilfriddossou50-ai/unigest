@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Matiere;
 use App\Models\Note;
 use App\Services\ResultatSemestreService;
 use App\Models\ResultatSemestre;
@@ -20,22 +21,35 @@ class NoteObserver
 
     public function saved(Note $note)
     {
-        // On récupère le semestre de la matière associée
-        $matiere = $note->matiere;
-        if ($matiere && $matiere->module) {
-            $semestreId = $matiere->module->semestre_id;
-            $etudiantId = $note->etudiant_id;
+        $this->recalculerResultatSemestre($note);
+        $this->detteService->verifierDette($note);
+    }
 
-            // Recalcul automatique
-            $moyenne = $this->service->calculerMoyenne($etudiantId, $semestreId);
-            $decision = $this->service->decision($etudiantId, $semestreId);
+    public function deleted(Note $note)
+    {
+        $this->recalculerResultatSemestre($note);
+        $this->detteService->supprimerDette($note);
+    }
 
-            ResultatSemestre::updateOrCreate(
-                ['etudiant_id' => $etudiantId, 'semestre_id' => $semestreId],
-                ['moyenne' => $moyenne, 'decision' => $decision]
-            );
+    protected function recalculerResultatSemestre(Note $note): void
+    {
+        $matiere = $note->relationLoaded('matiere')
+            ? $note->matiere
+            : Matiere::with('module')->find($note->matiere_id);
+
+        if (! $matiere || ! $matiere->module) {
+            return;
         }
 
-        $this->detteService->verifierDette($note);
+        $semestreId = $matiere->module->semestre_id;
+        $etudiantId = $note->etudiant_id;
+
+        $moyenne = $this->service->calculerMoyenne($etudiantId, $semestreId);
+        $decision = $this->service->decision($etudiantId, $semestreId);
+
+        ResultatSemestre::updateOrCreate(
+            ['etudiant_id' => $etudiantId, 'semestre_id' => $semestreId],
+            ['moyenne' => $moyenne, 'decision' => $decision]
+        );
     }
 }

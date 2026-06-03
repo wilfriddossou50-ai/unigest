@@ -21,19 +21,19 @@
             <div class="grid gap-6 sm:grid-cols-2">
                 <div>
                     <label class="block text-sm font-semibold text-slate-900 mb-2">Nom</label>
-                    <input type="text" value="{{ $etudiant->user->nom ?? '' }}" disabled
+                    <input type="text" value="{{ $etudiant->user?->nom ?? '' }}" disabled
                         class="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-700">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-900 mb-2">Prénom</label>
-                    <input type="text" value="{{ $etudiant->user->prenom ?? '' }}" disabled
+                    <input type="text" value="{{ $etudiant->user?->prenom ?? '' }}" disabled
                         class="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-700">
                 </div>
             </div>
 
             <div>
                 <label class="block text-sm font-semibold text-slate-900 mb-2">Email</label>
-                <input type="email" value="{{ $etudiant->user->email ?? '' }}" disabled
+                <input type="email" value="{{ $etudiant->user?->email ?? '' }}" disabled
                     class="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-700">
             </div>
 

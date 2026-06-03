@@ -26,7 +26,7 @@
                     <option value="">Sélectionnez un module</option>
                     @foreach($modules as $module)
                     <option value="{{ $module->id }}" {{ old('module_id') == $module->id ? 'selected' : '' }}>
-                        {{ $module->libelle ?? $module->nom ?? 'Module inconnu' }} — {{ $module->filiere->libelle ?? 'Filière inconnue' }} — {{ $module->semestre->libelle ?? 'Semestre inconnu' }}
+                        {{ $module->libelle ?? $module->nom ?? 'Module inconnu' }} — {{ $module->filiere?->libelle ?? 'Filière inconnue' }} — {{ $module->semestre?->libelle ?? 'Semestre inconnu' }}
                     </option>
                     @endforeach
                 </select>

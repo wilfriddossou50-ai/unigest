@@ -85,8 +85,8 @@
                 <div class="p-5 hover:bg-slate-50 transition">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="font-bold text-slate-900">{{ $note->matiere->libelle ?? 'Matière' }}</p>
-                            <p class="text-xs text-slate-500">{{ $note->matiere->module->libelle ?? $note->matiere->module->nom ?? 'Module général' }}</p>
+                            <p class="font-bold text-slate-900">{{ $note->matiere?->libelle ?? 'Matière' }}</p>
+                            <p class="text-xs text-slate-500">{{ $note->matiere?->module?->libelle ?? $note->matiere?->module?->nom ?? 'Module général' }}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-[10px] uppercase font-bold text-sky-400">Moyenne</p>

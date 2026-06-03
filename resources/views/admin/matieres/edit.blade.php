@@ -12,7 +12,7 @@
     </div>
 
     <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 max-w-3xl">
-        <form action="{{ route('admin.matieres.update', $matiere) }}" method="POST" class="space-y-6">
+        <form action="{{ url('admin/matieres/' . $matiere->id) }}" method="POST" class="space-y-6">
             @csrf
             @method('PUT')
 
@@ -22,7 +22,7 @@
                     <option value="">Sélectionnez un module</option>
                     @foreach($modules as $module)
                     <option value="{{ $module->id }}" {{ old('module_id', $matiere->module_id) == $module->id ? 'selected' : '' }}>
-                        {{ $module->libelle ?? $module->nom ?? 'Module inconnu' }} — {{ $module->filiere->libelle ?? 'Filière inconnue' }} — {{ $module->semestre->libelle ?? 'Semestre inconnu' }}
+                        {{ $module->libelle ?? $module->nom ?? 'Module inconnu' }} — {{ $module->filiere?->libelle ?? 'Filière inconnue' }} — {{ $module->semestre?->libelle ?? 'Semestre inconnu' }}
                     </option>
                     @endforeach
                 </select>

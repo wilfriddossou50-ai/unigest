@@ -78,7 +78,7 @@
                             @if($emploi->professeur)
                             <span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-slate-700">
                                 <i data-lucide="user" class="w-4 h-4"></i>
-                                {{ $emploi->professeur->nom }} {{ $emploi->professeur->prenom }}
+                                {{ $emploi->professeur?->nom ?? '' }} {{ $emploi->professeur?->prenom ?? '' }}
                             </span>
                             @endif
                             <span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-slate-700">

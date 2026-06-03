@@ -99,7 +99,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('{etudiant}', 'etudiant')->name('etudiant');
             Route::post('{dette}/lever', 'lever')->name('lever');
-            Route::delete('{dette}', 'destroy')->name('destroy');
         });
 
         Route::prefix('programme-cours')->name('programme-cours.')->group(function () {
@@ -136,6 +135,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('bulletin', [DashboardController::class, 'etudiantBulletin'])->name('bulletin.index');
         Route::get('emploi', [DashboardController::class, 'etudiantEmploi'])->name('emploi.index');
+        Route::get('dettes', [DashboardController::class, 'etudiantDettes'])->name('dettes.index');
         Route::get('profil', [ProfileController::class, 'index'])->name('profil.index');
         Route::match(['put', 'patch'], 'profil', [ProfileController::class, 'update'])->name('profil.update');
         Route::delete('profil', [ProfileController::class, 'destroy'])->name('profil.destroy');

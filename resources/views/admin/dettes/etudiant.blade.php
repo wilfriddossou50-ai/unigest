@@ -8,7 +8,7 @@
         <a href="{{ route('admin.dettes.index') }}" class="text-blue-600 hover:text-blue-700 text-sm font-medium mb-4 inline-block">
             ← Retour aux dettes
         </a>
-        <h1 class="text-3xl font-bold text-slate-900">Dettes de {{ $etudiant->user->nom ?? 'Étudiant' }} {{ $etudiant->user->prenom ?? '' }}</h1>
+        <h1 class="text-3xl font-bold text-slate-900">Dettes de {{ $etudiant->user?->nom ?? 'Étudiant' }} {{ $etudiant->user?->prenom ?? '' }}</h1>
         <p class="text-slate-600 mt-1">Matricule : {{ $etudiant->numero_etudiant ?? 'N/A' }}</p>
     </div>
 
@@ -26,9 +26,9 @@
             <tbody class="divide-y divide-slate-200">
                 @forelse($dettes ?? [] as $dette)
                 <tr class="hover:bg-slate-50 transition">
-                    <td class="px-6 py-4 text-sm font-medium text-slate-900">{{ $dette->module->libelle ?? 'N/A' }}</td>
-                    <td class="px-6 py-4 text-sm text-slate-600">{{ $dette->matiere->libelle ?? 'N/A' }}</td>
-                    <td class="px-6 py-4 text-sm text-slate-600">{{ $dette->semestre->libelle ?? 'N/A' }}</td>
+                    <td class="px-6 py-4 text-sm font-medium text-slate-900">{{ $dette->module?->libelle ?? 'N/A' }}</td>
+                    <td class="px-6 py-4 text-sm text-slate-600">{{ $dette->matiere?->libelle ?? 'N/A' }}</td>
+                    <td class="px-6 py-4 text-sm text-slate-600">{{ $dette->semestre?->libelle ?? 'N/A' }}</td>
                     <td class="px-6 py-4 text-sm">
                         <span class="px-2.5 py-1 rounded-full text-xs font-bold {{ $dette->statut === 'en_cours' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800' }}">
                             {{ ucfirst(str_replace('_', ' ', $dette->statut)) }}

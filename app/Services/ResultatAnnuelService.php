@@ -5,26 +5,25 @@ namespace App\Services;
 class ResultatAnnuelService
 {
     /**
-     * Calcul de la moyenne annuelle à partir de deux notes de semestres
+     * Calcul de la moyenne annuelle à partir d'une liste de moyennes de semestres.
+     * Les valeurs non numériques sont ignorées pour garder un calcul dynamique.
      */
-    public function calculerMoyenne($s1, $s2)
+    public function calculerMoyenne(...$notes)
     {
-        $note1 = is_numeric($s1) ? $s1 : null;
-        $note2 = is_numeric($s2) ? $s2 : null;
+        if (count($notes) === 1 && is_array($notes[0])) {
+            $notes = $notes[0];
+        }
 
-        if ($note1 === null && $note2 === null) {
+        $notesValides = collect($notes)
+            ->filter(fn ($note) => is_numeric($note))
+            ->map(fn ($note) => (float) $note)
+            ->values();
+
+        if ($notesValides->isEmpty()) {
             return 0;
         }
 
-        if ($note1 === null) {
-            return round($note2, 2);
-        }
-
-        if ($note2 === null) {
-            return round($note1, 2);
-        }
-
-        return round(($note1 + $note2) / 2, 2);
+        return round($notesValides->avg(), 2);
     }
 
     /**

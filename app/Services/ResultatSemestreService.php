@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Etudiant;
 use App\Models\Module;
 use App\Models\Note;
 
@@ -15,38 +16,37 @@ class ResultatSemestreService
     }
 
     /**
-     * Calcul moyenne générale du semestre
-     * = moyenne de TOUTES les matières du semestre
+     * Calcul de la moyenne du semestre.
+     * Règle métier: moyenne des moyennes des modules du semestre.
+     * Les modules sans note ne sont pas comptés pour permettre un calcul
+     * dynamique: dès qu'un module est saisi, il entre automatiquement dans la moyenne.
      */
     public function calculerMoyenne($etudiantId, $semestreId)
     {
-        $modules = Module::where('semestre_id', $semestreId)->get();
+        $modules = $this->modulesDuSemestrePourEtudiant($etudiantId, $semestreId);
 
         if ($modules->isEmpty()) {
             return 0;
         }
 
-        $totalNotes = 0;
-        $matieresEvaluees = 0;
+        $totalMoyennesModules = 0;
+        $modulesEvalues = 0;
 
         foreach ($modules as $module) {
-            foreach ($module->matieres as $matiere) {
-                $note = Note::where('etudiant_id', $etudiantId)
-                    ->where('matiere_id', $matiere->id)
-                    ->first();
-
-                if ($note && $note->note_finale !== null) {
-                    $totalNotes += $note->note_finale;
-                    $matieresEvaluees++;
-                }
+            $moyenneModule = $this->moduleService->calculerMoyenne($etudiantId, $module->id);
+            if ($moyenneModule === null) {
+                continue;
             }
+
+            $totalMoyennesModules += $moyenneModule;
+            $modulesEvalues++;
         }
 
-        if ($matieresEvaluees === 0) {
+        if ($modulesEvalues === 0) {
             return 0;
         }
 
-        return round($totalNotes / $matieresEvaluees, 2);
+        return round($totalMoyennesModules / $modulesEvalues, 2);
     }
 
     /**
@@ -115,48 +115,47 @@ class ResultatSemestreService
 
     /**
      * Décision académique du semestre :
-     * - admis = 100% modules validés ET moyenne >= 10/20
-     * - ajourne = au moins un module non validé mais avec possibilité de rattrapage
-     * - redoublant = conditions non remplies, redoublement recommandé
+     * - admis = moyenne des moyennes des modules >= 10/20
+     * - redoublant = moyenne strictement inférieure à 10/20
+     * - en_cours = aucune note saisie pour ce semestre
      */
     public function decision($etudiantId, $semestreId): string
     {
-        // 1. Vérifier si l'étudiant a au moins une note dans ce semestre
+        // Vérifier si l'étudiant a au moins une note dans ce semestre
+        $etudiant = Etudiant::find($etudiantId);
+        if (! $etudiant) {
+            return 'en_cours';
+        }
+
         $hasNotes = Note::where('etudiant_id', $etudiantId)
-            ->whereHas('matiere.module', function ($query) use ($semestreId) {
-                $query->where('semestre_id', $semestreId);
+            ->whereHas('matiere.module', function ($query) use ($semestreId, $etudiant) {
+                $query->where('semestre_id', $semestreId)
+                    ->where('filiere_id', $etudiant->filiere_id);
             })->exists();
 
-        // Si aucune note n'est saisie, on met en cours
         if (!$hasNotes) {
             return 'en_cours';
         }
 
-        // 2. Calcul de la moyenne
         $moyenne = $this->calculerMoyenne($etudiantId, $semestreId);
-        $tousValides = $this->tousModulesValides($etudiantId, $semestreId);
 
-        // Tous les modules validés et moyenne >= 10 = admis
-        if ($tousValides && $moyenne >= 10) {
+        if ($moyenne >= 10) {
             return 'admis';
         }
 
-        // Vérifier s'il y a des modules en attente (rattrapage/reprise possible)
-        $modules = Module::where('semestre_id', $semestreId)->get();
-        $modulesEnAttente = 0;
-
-        foreach ($modules as $module) {
-            if ($this->moduleEnAttente($etudiantId, $module->id)) {
-                $modulesEnAttente++;
-            }
-        }
-
-        // S'il y a des modules en attente mais pas tous = ajourné
-        if ($modulesEnAttente > 0 && $modulesEnAttente < $modules->count()) {
-            return 'ajourne';
-        }
-
-        // Sinon = redoublant
         return 'redoublant';
+    }
+
+    protected function modulesDuSemestrePourEtudiant($etudiantId, $semestreId)
+    {
+        $etudiant = Etudiant::find($etudiantId);
+        if (! $etudiant || ! $etudiant->filiere_id) {
+            return collect();
+        }
+
+        return Module::where('semestre_id', $semestreId)
+            ->where('filiere_id', $etudiant->filiere_id)
+            ->with('matieres')
+            ->get();
     }
 }

@@ -51,7 +51,7 @@
         <div class="flex flex-col gap-3 px-6 py-5 border-b border-slate-100 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h2 class="text-lg font-semibold text-slate-900">Détail des matières</h2>
-                <p class="mt-1 text-sm text-slate-500">Affichage clair des notes, statuts et coefficients.</p>
+                <p class="mt-1 text-sm text-slate-500">Affichage clair des notes, statuts et validations.</p>
             </div>
             <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">
                 {{ $notes->count() }} matière(s)
@@ -65,7 +65,11 @@
             $matiere = $note->matiere;
             $module = $matiere?->module;
             $isValide = in_array($note->statut, ['validee', 'rattrapage_valide', 'reprise_valide']);
-            $statusLabel = $isValide ? 'Validée' : 'En attente / Dette';
+            $statusLabel = match ($note->statut) {
+            'validee', 'rattrapage_valide', 'reprise_valide' => 'Validée',
+            'en_cours' => 'En cours',
+            default => 'Non validée',
+            };
             $statusColor = $isValide ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200';
             @endphp
             <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5 shadow-sm transition hover:border-slate-300 hover:bg-white">
@@ -75,7 +79,7 @@
                         <div class="mt-2 flex flex-wrap gap-2 text-sm text-slate-500">
                             <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-slate-600 shadow-sm">
                                 <i data-lucide="layers" class="w-4 h-4"></i>
-                                {{ $module?->nom ?? 'Module inconnu' }}
+                                {{ $module?->libelle ?? $module?->nom ?? 'Module inconnu' }}
                             </span>
                             <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-slate-600 shadow-sm">
                                 <i data-lucide="hash" class="w-4 h-4"></i>
@@ -94,8 +98,8 @@
                         <p class="mt-2 text-2xl font-bold text-slate-900">{{ $note->note_finale !== null ? number_format($note->note_finale, 2, ',', '.') : '—' }}</p>
                     </div>
                     <div class="rounded-3xl bg-white p-4 border border-slate-200">
-                        <p class="text-xs uppercase tracking-[0.22em] text-slate-400">Coefficient</p>
-                        <p class="mt-2 text-xl font-semibold text-slate-900">{{ $matiere?->coefficient ?? '1' }}</p>
+                        <p class="text-xs uppercase tracking-[0.22em] text-slate-400">Validation</p>
+                        <p class="mt-2 text-xl font-semibold text-slate-900">{{ $statusLabel }}</p>
                     </div>
                     <div class="rounded-3xl bg-white p-4 border border-slate-200">
                         <p class="text-xs uppercase tracking-[0.22em] text-slate-400">CC</p>
